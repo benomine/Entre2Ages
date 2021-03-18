@@ -1,0 +1,92 @@
+﻿@using BlazorEntre2Ages.Models
+@using BlazorEntre2Ages.Services
+@inject DialogService DialogService
+@inject IUserService UserService
+
+<RadzenTemplateForm TItem="Appointment" Data="@model" Submit=@OnSubmit>
+<div class="row" style="margin-bottom: 16px">
+    <div class="col-md-3">
+        <RadzenLabel Text="Subject" />
+    </div>
+    <div class="col">
+        <RadzenTextBox @bind-Value="@model.Subject" Name="Subject" />
+        <RadzenRequiredValidator Text="Title is required" Component="Subject" />
+    </div>
+</div>
+<div class="row" style="margin-bottom: 16px">
+    <div class="col-md-3">
+        <RadzenLabel Text="Start" />
+    </div>
+    <div class="col">
+        <RadzenDatePicker @bind-Value="@model.Start" Name="Start" ShowTime="true" />
+        <RadzenRequiredValidator Text="Start is required" Component="Start" />
+    </div>
+</div>
+<div class="row" style="margin-bottom: 16px">
+    <div class="col-md-3">
+        <RadzenLabel Text="End" />
+    </div>
+    <div class="col">
+        <RadzenDatePicker Name="End" @bind-Value="@model.End" ShowTime="true" />
+        <RadzenRequiredValidator Component="End" Text="End is required" />
+    </div>
+</div>
+<div class="row" style="margin-bottom: 16px">
+    <div class="col-md-3">
+        <RadzenLabel Text="Guest" />
+    </div>
+    <div class="col">
+        <RadzenDropDown AllowClear="true" TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                        AllowFiltering="true" 
+                        Placeholder="Select..." Data=@Emails TextProperty="GuestEmail"
+                        ValueProperty="GuestEmail" Change=@(args => OnChange(args)) 
+                        @bind-value="@model.GuestEmail"/>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col">
+        <RadzenButton ButtonType="ButtonType.Submit" Text="Save" />
+    </div>
+</div>
+</RadzenTemplateForm>
+
+@code {
+    public IEnumerable<string> Emails;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var users = await UserService.GetAll();
+        Emails = users.Select((user => user.Email));
+    }
+    
+    [Parameter]
+    public DateTime Start { get; set; }
+    [Parameter]
+    public DateTime End { get; set; }
+    [Parameter]
+    public string Subject { get; set; }
+    [Parameter]
+    public string GuestEmail { get; set; }
+    
+    Appointment model = new Appointment();
+
+    protected override void OnParametersSet()
+    {
+        model.Start = Start;
+        model.End = End;
+        model.Subject = Subject;
+        model.GuestEmail = GuestEmail;
+    }
+
+    void OnChange(object value)
+    {
+        var str = value is IEnumerable<object>objects ? string.Join(", ", objects) : value;
+    }
+    
+    void OnSubmit(Appointment model)
+    {
+        DialogService.Close(model);
+    }
+    
+}

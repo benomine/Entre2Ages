@@ -1,0 +1,83 @@
+﻿@page  "/"
+@using BlazorEntre2Ages.Services
+@using System.Security.Claims
+@using BlazorEntre2Ages.Authentication
+@using BlazorEntre2Ages.Models
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService LocalStorageService
+@inject IUserService UserService
+
+<div class="row">
+    <div class="col-xl-6">
+        <EditForm Model="@_user" OnValidSubmit="@ValidateUser">
+            <div>
+                <br /><br /><br /><br /><br />
+            </div>
+            <div>
+                <h3 style="font-weight:bold; color:purple">Entre2Ages Login</h3>
+            </div>
+            <div>
+                <br />
+            </div>
+            <div class="col-12 row">
+                <input class="form-control col-12" @bind="_user.Email" placeholder="email address" />
+            </div>
+            <br />
+            <div class="col-12 row">
+                <input type="password" class="form-control col-12" @bind="_user.Password" placeholder="password" />
+            </div>
+            <br />
+            <div class="col-12 row">
+                <span class="col-12"></span>
+                <input type="submit" class="form-control col-6 btn btn-primary" value="Login" />
+                <a href="/signup" class="col-3">Sign up</a>
+            </div>
+            <br />
+            <div class="col-12 row" style="text-align:left; font-weight:bold">
+                <span class="col-12">@LoginMessage</span>
+            </div>
+        </EditForm>
+    </div>
+    <div class="col-xl-6">
+        <img src="img/logo.svg" style="height: available" alt="logo entre2ages"/>
+    </div>
+</div>
+
+@code {
+    private User _user;
+    public string LoginMessage { get; set; }
+    ClaimsPrincipal _claimsPrincipal;
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _user = new User();
+
+        _claimsPrincipal = (await AuthenticationStateTask).User;
+
+        if (_claimsPrincipal.Identity != null && _claimsPrincipal.Identity.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("/index");
+        }
+    }
+
+    private async Task<bool> ValidateUser()
+    {
+        var returnedUser = await UserService.LoginAsync(_user);
+        
+        if (returnedUser != null)
+        {
+            await ((CustomAuthenticationStateProvider)AuthenticationStateProvider).MarkUserAsAuthenticated(returnedUser);
+            NavigationManager.NavigateTo("/index");
+        }
+        else
+        {
+            LoginMessage = "Invalid username or password";
+        }
+
+        return await Task.FromResult(true);
+    }
+}

@@ -1,0 +1,156 @@
+version: '3.8'
+services:
+  users:
+    image: postgres:alpine
+    restart: always
+    env_file:
+      - users.env
+    ports:
+      - 5432:5432
+    volumes:
+      - ./users:/var/lib/postgresql/data
+    networks:
+      - entre2ages
+    container_name: users
+  messages:
+    image: mongo
+    ports:
+      - 27015:27017
+    volumes:
+      - ./messages:/data/db
+    restart: always
+    networks:
+      - entre2ages
+    container_name: mongo
+  events:
+    image: postgres:alpine
+    ports:
+      - 5431:5432
+    env_file:
+      - events.env
+    volumes:
+      - ./events:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - entre2ages
+    container_name: events
+  medias:
+    image: postgres:alpine
+    restart: always
+    env_file:
+      - medias.env
+    ports:
+      - 5433:5432
+    volumes:
+      - ./medias:/var/lib/postgresql/data
+    networks:
+      - entre2ages
+    container_name: medias
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    networks:
+      - entre2ages
+    container_name: rabbitmq
+
+  events-service:
+    build:
+      dockerfile: EventMicroservice.API/Dockerfile
+      context: ./EventMicroservice
+    depends_on:
+      - events
+      - consul
+    restart: always
+    container_name: events-service
+    links:
+      - events
+    environment:
+      - Kestrel__Certificates__Default__Password=xsdRyXGjjhEEUKQYNQQQ
+      - Kestrel__Certificates__Default__Path=/app/Infrastructure/Certificate/microservices.pfx
+    volumes:
+      - ./Certificates:/app/Infrastructure/Certificate/
+    networks:
+      - entre2ages
+
+  users-service:
+    build:
+      dockerfile: UserMicroservice.API/Dockerfile
+      context: ./UserMicroservice
+    depends_on:
+      - users
+      - consul
+    restart: always
+    container_name: users-service
+    networks:
+      - entre2ages
+    links:
+      - users
+    environment:
+      - Kestrel__Certificates__Default__Password=xsdRyXGjjhEEUKQYNQQQ
+      - Kestrel__Certificates__Default__Path=/app/Infrastructure/Certificate/microservices.pfx
+    volumes:
+      - ./Certificates:/app/Infrastructure/Certificate/
+
+  messages-service:
+    build:
+      dockerfile: MessageMicroservice.API/Dockerfile
+      context: ./MessageMicroservice
+    depends_on:
+      - messages
+      - consul
+    restart: always
+    container_name: messages-service
+    networks:
+      - entre2ages
+    links:
+      - messages
+    environment:
+      - Kestrel__Certificates__Default__Password=xsdRyXGjjhEEUKQYNQQQ
+      - Kestrel__Certificates__Default__Path=/app/Infrastructure/Certificate/microservices.pfx
+    volumes:
+      - ./Certificates:/app/Infrastructure/Certificate/
+
+  medias-service:
+    build:
+      dockerfile: MediaMicroservice.API/Dockerfile
+      context: ./MediaMicroservice
+    depends_on:
+      - users
+      - consul
+    restart: always
+    container_name: medias-service
+    networks:
+      - entre2ages
+    links:
+      - users
+    environment:
+      - Kestrel__Certificates__Default__Password=xsdRyXGjjhEEUKQYNQQQ
+      - Kestrel__Certificates__Default__Path=/app/Infrastructure/Certificate/microservices.pfx
+    volumes:
+      - ./Certificates:/app/Infrastructure/Certificate/
+
+  consul:
+    image: consul
+    networks:
+      - entre2ages
+    container_name: consul
+
+  gateway:
+    build:
+      dockerfile: Gateway/Dockerfile
+      context: ./Gateway
+    depends_on:
+      - events
+    restart: always
+    container_name: gateway
+    networks:
+      - entre2ages
+    links:
+      - users
+    environment:
+      - Kestrel__Certificates__Default__Password=xsdRyXGjjhEEUKQYNQQQ
+      - Kestrel__Certificates__Default__Path=/app/Infrastructure/Certificate/microservices.pfx
+    volumes:
+      - ./Certificates:/app/Infrastructure/Certificate/
+networks:
+  entre2ages:

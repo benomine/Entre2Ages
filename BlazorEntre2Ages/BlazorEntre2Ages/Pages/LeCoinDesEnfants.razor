@@ -1,0 +1,24 @@
+﻿@page "/coindesenfants"
+@using System.IO
+
+<h3>Upload Files</h3>
+<div>
+    <InputFile OnChange="@OnFileSelection"></InputFile>
+    <div class="row">
+        <img src="@imgUrl">
+    </div>
+</div>
+
+@code{
+    string imgUrl = string.Empty;
+
+    private async Task OnFileSelection(InputFileChangeEventArgs e)
+    {
+        IBrowserFile imgFile = e.File;
+        var buffers = new byte[imgFile.Size];
+        await imgFile.OpenReadStream().ReadAsync(buffers);
+        string imageType = imgFile.ContentType;
+        imgUrl = $"data:{imageType};base64,{Convert.ToBase64String(buffers)}";
+    }
+
+}

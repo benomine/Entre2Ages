@@ -1,0 +1,114 @@
+﻿@page "/index"
+@using System.Security.Claims
+@using BlazorEntre2Ages.Models
+@using BlazorEntre2Ages.Models.Holidays
+@using Newtonsoft.Json
+@using System.Globalization
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService LocalStorageService
+@inject IAuthorizationService AuthorizationService
+@inject DialogService DialogService
+@inject HttpClient Client
+
+<h1>Bienvenue sur la plateforme Entre2Ages</h1>
+
+@if (_isUserAuthenticated)
+{
+    <h3><b>
+        Bienvenue 
+        @if (_user.Identity != null)
+        {
+            @_user.Identity.Name
+        }
+    </b> </h3>
+    <br />
+}
+else
+{
+    <h3><b>Veuillez vous connecter pour profiter de la plateforme</b></h3>
+}
+
+<div class="row">
+    <div class="col-xl-6">
+        <p>
+            <h3>Liste des événements spéciaux</h3>
+        </p>
+        <RadzenScheduler @ref="@Scheduler" style="height: 768px;" TItem="Appointment" Data="@Appointments" StartProperty="Start" EndProperty="End"
+                          TextProperty="Subject" SelectedIndex="2"
+                          SlotSelect="@OnSlotSelect" AppointmentSelect="@OnAppointmentSelect" AppointmentRender="@OnAppointmentRender">
+            <RadzenDayView/>
+            <RadzenWeekView/>
+            <RadzenMonthView/>
+        </RadzenScheduler>
+    </div>
+    <div class="col-xl-6">
+        <img src="img/dessin 1.jpg" alt="dessin 1"/>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+    ClaimsPrincipal _user;
+    public RadzenScheduler<Appointment> Scheduler;
+    
+    Dictionary<DateTime, string> _events = new Dictionary<DateTime, string>();
+
+    public IList<Appointment> Appointments;
+    bool _isUserAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Appointments = await GetHolidays();
+        _user = (await AuthenticationStateTask).User;
+
+        if (_user.Identity.IsAuthenticated)
+            _isUserAuthenticated = true;
+    }
+
+    async Task OnSlotSelect(SchedulerSlotSelectEventArgs args)
+    {
+        Appointment data = await DialogService.OpenAsync<AddAppointmentPage>("Add Appointment",
+            new Dictionary<string, object> { { "Start", args.Start }, { "End", args.End } });
+
+        if (data != null)
+        {
+            Appointments.Add(data);
+            await Scheduler.Reload();
+        }
+    }
+
+    async Task OnAppointmentSelect(SchedulerAppointmentSelectEventArgs<Appointment> args)
+    {
+        await DialogService.OpenAsync<EditAppointmentPage>("Edit Appointment", 
+            new Dictionary<string, object> { { "Appointment", args.Data } });
+
+        await Scheduler.Reload();
+    }
+
+    void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<Appointment> args)
+    {
+        args.Attributes["style"] = "background: #a58bbb";
+    }
+
+    public async Task<List<Appointment>> GetHolidays()
+    {
+        var requestMessage = new HttpRequestMessage()
+        {
+            Method = HttpMethod.Get,
+            RequestUri = new Uri("https://canada-holidays.ca/api/v1/holidays")
+        };
+        var response = await Client.SendAsync(requestMessage);
+        var result = await response.Content.ReadAsStringAsync();
+        Dictionary<string, IList<Holiday>> dictionary =
+            JsonConvert.DeserializeObject<Dictionary<string, IList<Holiday>>>(result);
+        var listHolidays = dictionary["holidays"];
+        var filtered = listHolidays.Where(h => h.Provinces.Any(p => p.Id.Equals("QC")));
+        return filtered.Select(h => new Appointment()
+        {
+            End = DateTime.ParseExact(h.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture),
+            Start = DateTime.ParseExact(h.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture),
+            Subject = h.NameFr
+        }).ToList();
+    }
+}

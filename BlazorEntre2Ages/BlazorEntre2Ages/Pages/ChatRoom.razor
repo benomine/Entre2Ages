@@ -1,0 +1,95 @@
+﻿@page "/chatroom"
+@using BlazorEntre2Ages.Services
+@using BlazorEntre2Ages.Models
+@using System.Globalization
+@using System.Security.Claims
+@inject IChatService ChatService
+@inject IAuthorizationService AuthorizationService
+@inject Rabbit Rabbit
+
+<h3>ChatRoom</h3>
+<AuthorizeView>
+    <Authorized>
+        <div style="display: inline-block; width: 100%">
+            @if (_messages == null)
+            {
+                <div>
+                    <h4>Loading...</h4>
+                </div>
+            }
+            else
+            {
+                <div style="clear: both">
+                    <ul>
+                        @foreach (var item in _messages)
+                        {
+                            <li class="@item.Css">
+                                <div class="user">@item.Author</div>
+                                <div class="msg">@item.Body</div>
+                                <div class="timestamp">@Epoch2String(item.TimeStamp)</div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+            <hr style="clear: both"/>
+            <div style="position: relative; clear: both">
+                <textarea class="input-lg" placeholder="Entrez votre message..." @bind="Description" @bind:event="oninput"></textarea>
+                <RadzenButton Click=@OnClick Text="Envoyer" Icon="chat" Style="margin-bottom: 20px; width: 150px; background-color: #78849e"/>
+            </div>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div>
+            <h3>
+                Merci de vous connecter pour envoyer des messages.
+            </h3>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+@code {
+
+    IEnumerable<Message> _messages;
+    public string Description { get; set; } = string.Empty;
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+    ClaimsPrincipal _user;
+    public bool DisabledState => Description.Length == 0 ? true : false;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        _user = (await AuthenticationStateTask).User;
+        ChatService.OnChangeAsync += async mess =>
+        {
+            await InvokeAsync(() =>
+            {
+                _messages = mess;
+                foreach (var message in _messages)
+                {
+                    message.Mine = message.Author == _user.Identity.Name;
+                }
+                StateHasChanged();
+            }
+            );
+        };
+    }
+
+    private static string Epoch2String(long epoch)
+    {
+        //return new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epoch).ToString();
+        return DateTimeOffset.FromUnixTimeSeconds(epoch).LocalDateTime.ToString(CultureInfo.CurrentCulture);
+    }
+
+    async Task OnClick()
+    {
+        
+        var message = new Message
+        {
+            Author = _user.Identity.Name,
+            TimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            Body = Description
+        };
+    
+        await Rabbit.SendMessage(message);
+    }
+}

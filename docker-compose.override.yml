@@ -1,0 +1,85 @@
+version: '3.8'
+services:
+  events-service:
+    ports:
+      - "6001:443"
+      - "6000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ASPNETCORE_URLS=https://+;http://+"
+      - ASPNETCORE_HTTPS_PORT=6001
+      - Consul__Host=consul
+      - Consul__Discovery__IpAddress=events-service
+      - ConnectionStrings__ConnectionString=Server=events;Username=postgres;Password=pass;Database=entre2ages;Port=5431
+
+  users-service:
+    ports:
+      - "5001:443"
+      - "5000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ASPNETCORE_URLS=https://+;http://+"
+      - ASPNETCORE_HTTPS_PORT=5001
+      - Consul__Host=consul
+      - Consul__Discovery__IpAddress=users-service
+      - ConnectionStrings__ConnectionString=Server=users;Username=postgres;Password=pass;Database=entre2ages;Port=5432
+
+  messages-service:
+    ports:
+      - "4000:443"
+      - "4000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ASPNETCORE_URLS=https://+;http://+"
+      - ASPNETCORE_HTTPS_PORT=4001
+      - Consul__Host=consul
+      - Consul__Discovery__IpAddress=messages-service
+      - MongoDatabaseSettings__ConnectionString=mongodb://messages
+
+  medias-service:
+    ports:
+      - "7001:443"
+      - "7000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ASPNETCORE_URLS=https://+;http://+"
+      - ASPNETCORE_HTTPS_PORT=7001
+      - Consul__Host=consul
+      - Consul__Discovery__IpAddress=users-service
+      - ConnectionStrings__ConnectionString=Server=medias;Username=postgres;Password=pass;Database=entre2ages;Port=5433 
+  gateway:
+    ports:
+      - "9001:443"
+      - "9000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ASPNETCORE_URLS=https://+;http://+"
+      - ASPNETCORE_HTTPS_PORT=9001
+      - GlobalConfiguration__ServiceDiscoveryProvider__Host=consul
+
+  rabbitmq:
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - "RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error}]"
+
+  events:
+    ports:
+      - 5431:5432
+
+  users:
+    ports:
+      - 5432:5432
+
+  medias:
+    ports:
+      - 5433:5432
+
+  messages:
+    ports:
+      - 27015:27017
+
+  consul:
+    ports:
+      - 8500:8500
