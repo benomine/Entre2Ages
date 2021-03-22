@@ -41,7 +41,7 @@ namespace BlazorEntre2Ages.Services
 
         public async Task<Media> GetById(Guid id)
         {
-            var request = new HttpRequestMessage()
+            var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
                 RequestUri = new Uri(_settings.MediaUrl + "/api/Medias/"+id)

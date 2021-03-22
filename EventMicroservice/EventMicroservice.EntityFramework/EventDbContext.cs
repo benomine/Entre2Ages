@@ -8,7 +8,6 @@ namespace EventMicroservice.EntityFramework
 {
     public class EventDbContext : DbContext
     {
-        private readonly Action<DbContextOptionsBuilder> _configureDbContext;
         public DbSet<Event> Events { get;set;}
 
         public EventDbContext(DbContextOptions options) : base(options) { }

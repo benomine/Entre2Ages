@@ -1,24 +1,58 @@
 ﻿@page "/coindesenfants"
-@using System.IO
+@using BlazorEntre2Ages.Models
+@using BlazorEntre2Ages.Services
+@inject IMediaService MediaService
 
-<h3>Upload Files</h3>
+<h3>Gallerie des images</h3>
 <div>
-    <InputFile OnChange="@OnFileSelection"></InputFile>
+    <InputFile OnChange="@OnFileSelection" accept="image/*"></InputFile>
     <div class="row">
-        <img src="@imgUrl">
+        <img src="@_imgUrl" alt="image upload"/>
+        <button type="submit" onsubmit="@Upload"></button>
     </div>
 </div>
+@if (Medias == null || Medias.Count == 0)
+{
+    <div><h3>Chargement des images.</h3></div>
+}
+@else {
+    <div class="col-xl-12">
+        @foreach (var media in Medias)
+        {
+            <img src="@media.Data" alt="@media.Title" />
+        }
+    </div>
+}
 
 @code{
-    string imgUrl = string.Empty;
+    string _imgUrl = string.Empty;
+    Media _media;
+    List<Media> Medias { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Medias = await MediaService.GetAll();
+    }
 
     private async Task OnFileSelection(InputFileChangeEventArgs e)
     {
         IBrowserFile imgFile = e.File;
         var buffers = new byte[imgFile.Size];
         await imgFile.OpenReadStream().ReadAsync(buffers);
-        string imageType = imgFile.ContentType;
-        imgUrl = $"data:{imageType};base64,{Convert.ToBase64String(buffers)}";
+        var imageType = imgFile.ContentType;
+        _imgUrl = $"data:{imageType};base64,{Convert.ToBase64String(buffers)}";
+        _media = new Media
+        {
+            Title = e.File.Name,
+            Data = _imgUrl
+        };
     }
-
+    
+    public async Task Upload()
+    {
+        if (_imgUrl != null || _imgUrl != string.Empty)
+        {
+            await MediaService.Create(_media);
+        }
+    }
 }
