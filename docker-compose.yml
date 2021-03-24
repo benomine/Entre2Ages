@@ -152,5 +152,29 @@ services:
       - Kestrel__Certificates__Default__Path=/app/Infrastructure/Certificate/microservices.pfx
     volumes:
       - ./Certificates:/app/Infrastructure/Certificate/
+  
+  web:
+    build:
+      dockerfile: BlazorEntre2Ages/Dockerfile
+      context: ./BlazorEntre2Ages
+    container_name: web
+    networks:
+      - entre2ages
+    links:
+      - users-service
+      - medias-service
+      - events-service
+    depends_on:
+      - medias-service
+      - users-service
+      - events-service
+      - rabbitmq
+    environment:
+      - Kestrel__Certificates__Default__Password=xsdRyXGjjhEEUKQYNQQQ
+      - Kestrel__Certificates__Default__Path=/app/Infrastructure/Certificate/microservices.pfx
+    volumes:
+      - ./Certificates:/app/Infrastructure/Certificate/
+    restart: always
+
 networks:
   entre2ages:

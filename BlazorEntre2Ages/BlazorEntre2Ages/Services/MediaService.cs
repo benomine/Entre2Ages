@@ -29,7 +29,7 @@ namespace BlazorEntre2Ages.Services
             var request = new HttpRequestMessage()
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(_settings.MediaUrl + "/api/Medias")
+                RequestUri = new Uri(_settings.MediaUrl + "api/Medias")
             };
 
             var response = await _httpClient.SendAsync(request);
@@ -44,7 +44,7 @@ namespace BlazorEntre2Ages.Services
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(_settings.MediaUrl + "/api/Medias/"+id)
+                RequestUri = new Uri(_settings.MediaUrl + "api/Medias/"+id)
             };
 
             var response = await _httpClient.SendAsync(request);
@@ -60,7 +60,7 @@ namespace BlazorEntre2Ages.Services
             var request = new HttpRequestMessage()
             {
                 Method = HttpMethod.Post,
-                RequestUri = new Uri(_settings.MediaUrl + "/api/Medias"),
+                RequestUri = new Uri(_settings.MediaUrl + "api/Medias"),
                 Content = new StringContent(json, Encoding.UTF8, "application/json")
             };
 

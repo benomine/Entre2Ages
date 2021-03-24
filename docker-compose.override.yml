@@ -10,7 +10,7 @@ services:
       - ASPNETCORE_HTTPS_PORT=6001
       - Consul__Host=consul
       - Consul__Discovery__IpAddress=events-service
-      - ConnectionStrings__ConnectionString=Server=events;Username=postgres;Password=pass;Database=entre2ages;Port=5431
+      - ConnectionStrings__ConnectionString=Server=events;Username=postgres;Password=pass;Database=entre2ages
 
   users-service:
     ports:
@@ -26,7 +26,7 @@ services:
 
   messages-service:
     ports:
-      - "4000:443"
+      - "4001:443"
       - "4000:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -46,7 +46,8 @@ services:
       - ASPNETCORE_HTTPS_PORT=7001
       - Consul__Host=consul
       - Consul__Discovery__IpAddress=users-service
-      - ConnectionStrings__ConnectionString=Server=medias;Username=postgres;Password=pass;Database=entre2ages;Port=5433 
+      - ConnectionStrings__ConnectionString=Server=medias;Username=postgres;Password=pass;Database=entre2ages
+
   gateway:
     ports:
       - "9001:443"
@@ -83,3 +84,18 @@ services:
   consul:
     ports:
       - 8500:8500
+
+  web:
+    ports:
+      - "1001:443"
+      - "1000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ASPNETCORE_URLS=http://+"
+      - ASPNETCORE_HTTPS_PORT=1001
+      - Services__UserUrl=http://users-service/
+      - Services__EventUrl=http://events-service/
+      - Services__MessageUrl=http://messages-service/
+      - Services__MediaUrl=http://medias-service/
+      - Services__Gateway=http://gateway/
+      - RabbitSettings__Host=rabbitmq

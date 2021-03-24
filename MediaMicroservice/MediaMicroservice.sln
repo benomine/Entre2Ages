@@ -5,11 +5,16 @@ VisualStudioVersion = 16.6.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaMicroservice.API", "MediaMicroservice.API\MediaMicroservice.API.csproj", "{5BDD2EF1-5D73-443C-9A13-612BBCDA8775}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaMicroservice.EntityFramework", "MediaMicroservice.EntityFramework\MediaMicroservice.EntityFramework.csproj", "{4C1A37CE-91D7-43E5-BE43-9E02D6A8D52F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaMicroservice.EntityFramework", "MediaMicroservice.EntityFramework\MediaMicroservice.EntityFramework.csproj", "{4C1A37CE-91D7-43E5-BE43-9E02D6A8D52F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaMicroservice.Domain", "MediaMicroservice.Domain\MediaMicroservice.Domain.csproj", "{58176A83-1A1F-45AC-AF31-2283059EA84B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaMicroservice.Domain", "MediaMicroservice.Domain\MediaMicroservice.Domain.csproj", "{58176A83-1A1F-45AC-AF31-2283059EA84B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaMicroservice.Tests", "MediaMicroservice.Tests\MediaMicroservice.Tests.csproj", "{1B5E1852-F68E-4DC0-B6D1-7C3C3138DD6F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaMicroservice.Tests", "MediaMicroservice.Tests\MediaMicroservice.Tests.csproj", "{1B5E1852-F68E-4DC0-B6D1-7C3C3138DD6F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2682B1AD-F845-4C33-B43A-446BDEC0670F}"
+	ProjectSection(SolutionItems) = preProject
+		Graph1.dgml = Graph1.dgml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

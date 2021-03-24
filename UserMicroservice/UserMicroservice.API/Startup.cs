@@ -67,6 +67,7 @@ namespace UserMicroservice.API
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "UserMicroservice", Version = "v1"});
+                c.EnableAnnotations();
             });
         }
 
@@ -80,7 +81,7 @@ namespace UserMicroservice.API
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "UserMicroservice v1"));
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseDiscoveryClient();
             app.UseRouting();
 

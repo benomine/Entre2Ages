@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Swashbuckle.AspNetCore.Annotations;
 using UserMicroservice.Domain.Models;
 using UserMicroservice.EntityFramework;
 
@@ -35,6 +36,12 @@ namespace UserMicroservice.API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<User>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerOperation(
+            Summary = "Get all users",
+            Description = "Return a list of all users",
+            OperationId = "UserController.GetAll",
+            Tags = new []{"UserController"}
+        )]
         public async Task<ActionResult<IEnumerable<User>>> GetAll()
         {
             var context = _contextFactory.CreateDbContext();
@@ -45,6 +52,12 @@ namespace UserMicroservice.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id:Guid}")]
+        [SwaggerOperation(
+            Summary = "Get a user with id",
+            Description = "Get a user with id",
+            OperationId = "UserController.GetById",
+            Tags = new []{"UserController"}
+        )]
         public async Task<ActionResult<User>> GetById(Guid id)
         {
             var context = _contextFactory.CreateDbContext();
@@ -62,6 +75,12 @@ namespace UserMicroservice.API.Controllers
         [HttpGet("{email}/")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(
+            Summary = "Get a user by email",
+            Description = "Get a user by email",
+            OperationId = "UserController.GetByEmail",
+            Tags = new []{"UserController"}
+        )]
         public async Task<ActionResult<User>> GetByEmail(string email)
         {
             var context = _contextFactory.CreateDbContext();
@@ -81,6 +100,12 @@ namespace UserMicroservice.API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(
+            Summary = "Update a user with his id",
+            Description = "Update a user with his id",
+            OperationId = "UserController.Update",
+            Tags = new []{"UserController"}
+        )]
         public async Task<IActionResult> Update(Guid id, User update)
         {
             if (id != update.Id)
@@ -121,6 +146,12 @@ namespace UserMicroservice.API.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(User))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerOperation(
+            Summary = "Create a user",
+            Description = "Create a user",
+            OperationId = "UserController.Post",
+            Tags = new []{"UserController"}
+        )]
         public async Task<ActionResult<User>> Post(User postUser)
         {
             if (!ModelState.IsValid)
@@ -150,6 +181,12 @@ namespace UserMicroservice.API.Controllers
         [HttpDelete("{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [SwaggerOperation(
+            Summary = "Delete a user by id",
+            Description = "Delete a user by id",
+            OperationId = "UserController.DeleteById",
+            Tags = new []{"UserController"}
+        )]
         public async Task<IActionResult> DeleteById(Guid id)
         {
             var context = _contextFactory.CreateDbContext();
@@ -169,6 +206,12 @@ namespace UserMicroservice.API.Controllers
         [HttpDelete("{email}/")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [SwaggerOperation(
+            Summary = "Delete a user by email",
+            Description = "Delete a user by email",
+            OperationId = "UserController.DeleteByEmail",
+            Tags = new []{"UserController"}
+        )]
         public async Task<IActionResult> DeleteByEmail(string email)
         {
             var context = _contextFactory.CreateDbContext();
@@ -185,6 +228,12 @@ namespace UserMicroservice.API.Controllers
         }
 
         [HttpPost("Login")]
+        [SwaggerOperation(
+            Summary = "Login with email and password",
+            Description = "Login with email and password",
+            OperationId = "UserController.Login",
+            Tags = new []{"UserController"}
+        )]
         public async Task<ActionResult<UserWithToken>> Login([FromBody] User user)
         {
             var context = _contextFactory.CreateDbContext();
@@ -211,6 +260,12 @@ namespace UserMicroservice.API.Controllers
         
         // POST: api/Users
         [HttpPost("Register")]
+        [SwaggerOperation(
+            Summary = "Register a user with email and password",
+            Description = "Register a user with email and password",
+            OperationId = "UserController.Register",
+            Tags = new []{"UserController"}
+        )]
         public async Task<ActionResult<UserWithToken>> Register([FromBody] User user)
         {
             var context = _contextFactory.CreateDbContext();
@@ -238,6 +293,12 @@ namespace UserMicroservice.API.Controllers
         }
 
         [HttpPost("RefreshToken")]
+        [SwaggerOperation(
+            Summary = "Get a refreshtoken",
+            Description = "Get a refreshtoken",
+            OperationId = "UserController.RefreshToken",
+            Tags = new []{"UserController"}
+        )]
         public async Task<ActionResult<UserWithToken>> RefreshToken([FromBody] RefreshRequest refreshRequest)
         {
             var user = await GetUserFromAccessToken(refreshRequest.AccessToken);
@@ -251,6 +312,12 @@ namespace UserMicroservice.API.Controllers
 
         // GET: api/Users
         [HttpPost("GetUserByAccessToken")]
+        [SwaggerOperation(
+            Summary = "Get a user by accesstoken",
+            Description = "Get a user by accesstoken",
+            OperationId = "UserController.GetUserByAccessToken",
+            Tags = new []{"UserController"}
+        )]
         public async Task<ActionResult<User>> GetUserByAccessToken([FromBody] string accessToken)
         {
             var user = await GetUserFromAccessToken(accessToken);

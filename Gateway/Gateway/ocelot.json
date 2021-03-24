@@ -2,7 +2,7 @@
   "Routes": [
     {
       "DownstreamPathTemplate": "/api/Users/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "UseServiceDiscovery": true,
       "ServiceName": "users-service",
       "UpstreamPathTemplate": "/api/Users/{everything}",
@@ -13,7 +13,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/Messages/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "UseServiceDiscovery": true,
       "ServiceName": "messages-service",
       "UpstreamPathTemplate": "/api/Messages/{everything}",
@@ -24,7 +24,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/Events/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "UseServiceDiscovery": true,
       "ServiceName": "events-service",
       "UpstreamPathTemplate": "/api/Events/{everything}",
@@ -32,10 +32,21 @@
       "LoadBalancerOptions": {
         "Type": "RoundRobin"
       }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Medias/{everything}",
+      "DownstreamScheme": "http",
+      "UseServiceDiscovery": true,
+      "ServiceName": "medias-service",
+      "UpstreamPathTemplate": "/api/Medias/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ],
+      "LoadBalancerOptions": {
+        "Type": "RoundRobin"
+      }
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://localhost:9001",
+    "BaseUrl": "http://localhost:9000",
     "RequestIdKey": "OcRequestId",
     "AdministrationPath": "/administration",
     "ServiceDiscoveryProvider": {

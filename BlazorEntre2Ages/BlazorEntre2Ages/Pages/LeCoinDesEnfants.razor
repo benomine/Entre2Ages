@@ -2,20 +2,28 @@
 @using BlazorEntre2Ages.Models
 @using BlazorEntre2Ages.Services
 @inject IMediaService MediaService
+@inject NavigationManager NavigationManager
 
 <h3>Gallerie des images</h3>
 <div>
-    <InputFile OnChange="@OnFileSelection" accept="image/*"></InputFile>
+    <InputFile OnChange="@OnFileSelection" accept="image/png,image/jpg,image/gif"></InputFile>
     <div class="row">
-        <img src="@_imgUrl" alt="image upload"/>
-        <button type="submit" onsubmit="@Upload"></button>
+        @if(_imgUrl != null)
+        {
+            <div>
+                <img src="@_imgUrl" alt="" />
+            </div>
+        }
+        <div>
+            <button class="btn btn-primary m-3" type="submit" @onclick="Upload">Upload</button>
+        </div>
     </div>
 </div>
 @if (Medias == null || Medias.Count == 0)
 {
     <div><h3>Chargement des images.</h3></div>
 }
-@else {
+else {
     <div class="col-xl-12">
         @foreach (var media in Medias)
         {
@@ -52,7 +60,9 @@
     {
         if (_imgUrl != null || _imgUrl != string.Empty)
         {
+            Medias.Add(_media);
             await MediaService.Create(_media);
+            StateHasChanged();
         }
     }
 }
