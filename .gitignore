@@ -3,6 +3,7 @@
 /events
 /images
 /medias
+/db
 events.env
 users.env
 images.env
